@@ -1,1 +1,1 @@
-from simplepyds import LinkedList
+from simplepyds import LinkedList, Tree
