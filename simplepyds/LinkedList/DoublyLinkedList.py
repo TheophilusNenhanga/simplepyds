@@ -1,0 +1,262 @@
+from simplepyds.Errors.CustomErrors import ContainerEmptyError
+from simplepyds.LinkedList.Node import DoublyLinkedNode
+from typing import Any, Callable
+
+
+class DoublyLinkedList[T]:
+
+    def __init__(self):
+        """
+        Initialize a DoublyLinkedList.
+        """
+        self.head: DoublyLinkedNode[T] | None = None
+        self.tail: DoublyLinkedNode[T] | None = None
+        self.curr: DoublyLinkedNode[T] | None = None
+        self._type: type | None = None
+        self.length: int = 0
+
+    def _check_type(self, value: Any) -> None:
+        """
+        Checks if a given value is the correct type
+        :param value: A value to be checked
+        :return: None
+        :raises TypeError: If the value is not of the correct type
+        """
+        if self._type is None:
+            self._type = type(value)
+        else:
+            if not isinstance(value, self._type):
+                raise TypeError(f"Value {value} is not of type {self._type}")
+
+    def insert_front(self, value: T) -> None:
+        """
+        Inserts the value at the front of the list
+        :param value: The value to be inserted
+        :return: None
+        """
+        self._check_type(value)
+        if self.is_empty():
+            self.head = DoublyLinkedNode(value)
+            self.tail = self.head
+        else:
+            old_head = self.head
+            self.head = DoublyLinkedNode(value, _next=old_head)
+            old_head.prev = self.head
+
+        self.length += 1
+
+    def insert_back(self, value: T) -> None:
+        """
+        Inserts the value at the back of the list
+        :param value: The value to be inserted
+        :return: None
+        """
+        self._check_type(value)
+        if self.is_empty():
+            self.head = DoublyLinkedNode(value)
+            self.tail = self.head
+        else:
+            old_tail = self.tail
+            self.tail = DoublyLinkedNode(value)
+            old_tail.next = self.tail
+
+        self.length += 1
+
+    def delete_front(self) -> None:
+        """
+        Deletes the value at the front of the list
+        :return: None
+        """
+        if self.is_empty():
+            raise ContainerEmptyError("Doubly Linked List")
+
+        old_head = self.head
+        self.head = old_head.next
+        self.head.prev = None
+
+        self.length -= 1
+
+    def delete_back(self) -> None:
+        """
+        Deletes the value at the back of the list
+        :return: None
+        """
+        if self.is_empty():
+            raise ContainerEmptyError("Doubly Linked List")
+
+        old_tail = self.tail
+        self.tail = old_tail.prev
+        self.tail.next = None
+
+        self.length -= 1
+
+    def is_empty(self) -> bool:
+        """
+        Checks if the list is empty
+        :return: True if the list is empty otherwise False
+        """
+        return True if self.head is None else False
+
+    def next(self) -> None:
+        """
+        Moves the cursor to the next node.
+        Changes the position of the cursor
+        :return: None
+        """
+        if self.curr is None:
+            self.curr = self.head
+        else:
+            self.curr = self.curr.next
+
+    def previous(self) -> None:
+        """
+        Moves the cursor to the previous node
+        Changes the position of the cursor
+        :return: None
+        """
+        if self.curr is None:
+            self.curr = self.tail
+        else:
+            self.curr = self.curr.prev
+
+    def __iter__(self):
+        """
+        Makes the DoublyLinkedList iterable
+        :return: DoublyLinkedList
+        """
+        self.curr = None
+        return self
+
+    def __next__(self):
+        """
+        Returns the next item in the list
+        :raises: StopIteration if there is no next item
+        :return: The next item in the list
+        """
+        self.next()
+        if self.curr is not None:
+            return self.curr.value
+        else:
+            raise StopIteration("List out of bounds: No more values to return")
+
+    def search(self, query: T) -> None:
+        """
+        Searches the list for a given query and returns the first value in the list that satisfies the query.
+        :param query: The query to search for
+        :return: The first value in the list that satisfies the query or None if the query is not found
+        """
+        self._check_type(query)
+        if self.is_empty():
+            return
+        old_current = self.curr
+        self.curr = self.head
+        while self.curr is not None:
+            if self.curr.value == query:
+                return
+            else:
+                self.next()
+        self.curr = old_current
+
+    def current(self):
+        """
+        Returns the value of the current node
+        :return: The value of the current node
+        """
+        return self.curr.value if self.curr is not None else None
+
+    def get(self, index: int) -> T | None:
+        """
+        Gets the value at the given index
+        :param index: The index of the value to be returned
+        :return: The value at the given index
+        """
+        self.__prepare_indexing(index)
+
+        old_current = self.curr
+        self.curr = self.head
+
+        for i in range(index):
+            self.next()
+
+        if self.curr is not None:
+            to_return = self.curr.value
+            self.curr = old_current
+            return to_return
+
+    def __prepare_indexing(self, index: int) -> None:
+        """
+        Prepares the list for indexing
+        :param index: The index to be prepared
+        :return: None
+        """
+        if self.is_empty():
+            raise ContainerEmptyError(name="Doubly Linked List")
+
+        if not isinstance(index, int):
+            raise TypeError(f"<index> must be of type 'int' not '{type(index)}'")
+
+        if index > (self.length - 1) or index < 0:
+            raise IndexError(f"Index '{index}' out of bounds for Doubly Linked List of size '{self.length}'")
+
+    def set(self, index: int, value: T) -> None:
+        """
+        Sets the value at the given index
+        :param index: The index of the value to be set
+        :param value: The value to be set
+        :return: None
+        """
+        self.__prepare_indexing(index)
+
+        old_current = self.curr
+        self.curr = self.head
+
+        for i in range(index):
+            self.next()
+
+        if self.curr is not None:
+            self.curr.value = value
+            self.curr = old_current
+
+    def len(self) -> int:
+        """
+        Returns the length of the list
+        :return: The length of the list
+        """
+        return self.length
+
+    def __str__(self) -> str:
+        """
+        String representation of Doubly Linked List
+        :return:
+        """
+        string = "["
+        old_curr = self.curr
+        self.curr = self.head
+
+        while self.curr is not None:
+            string += f"{self.curr.value}, "
+            self.next()
+
+        string = string.rstrip(", ")
+        string += "]"
+
+        self.curr = old_curr
+        return string
+
+    def foreach(self, fn: Callable[[T], Any]) -> Any:
+        """
+        Executes a function fn on each element of the list
+        :param fn: The function to execute
+        :return: Any value produced by the function
+        """
+        if self.is_empty():
+            raise IndexError("Cannot get first element of empty list")
+
+        old_current = self.curr
+        self.curr = self.head
+
+        while self.curr is not None:
+            fn(self.curr.value)
+            self.next()
+
+        self.curr = old_current

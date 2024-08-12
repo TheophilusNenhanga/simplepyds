@@ -14,7 +14,7 @@ class BinarySearchTree[T]:
         self._comparator = comparator
         self._type = None
 
-    def check_type(self, value: T) -> None:
+    def check_type(self, value: Any) -> None:
         """
         Checks if the given value is an instance of T
         :raises TypeError: If the given value is not an instance of T

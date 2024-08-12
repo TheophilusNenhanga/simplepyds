@@ -1,1 +1,1 @@
-from simplepyds import LinkedList, Tree
+from simplepyds import LinkedList, Tree, HashTable, Errors

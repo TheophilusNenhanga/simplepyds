@@ -14,3 +14,13 @@ class SinglyLinkedNode[T]:
         :return: String representation of the node.
         """
         return f"Value: {self.value}"
+
+
+class DoublyLinkedNode[T]:
+    def __init__(self, value: T, _next: "DoublyLinkedNode[T] | None" = None, prev: "DoublyLinkedNode | None" = None):
+        self.value: T = value
+        self.next: "DoublyLinkedNode[T] | None" = _next
+        self.prev: "DoublyLinkedNode[T] | None" = prev
+
+    def __str__(self) -> str:
+        return f"value: {self.value}"

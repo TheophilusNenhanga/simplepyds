@@ -1,3 +1,4 @@
+from simplepyds.Errors import ContainerEmptyError
 from simplepyds.LinkedList.Node import SinglyLinkedNode
 from typing import Any, Callable
 
@@ -114,6 +115,8 @@ class SinglyLinkedList[T]:
                 self.head = new_head
                 self.length -= 1
                 self.curr = self.head
+        else:
+            raise ContainerEmptyError("Singly Linked List")
 
     def delete_back(self) -> None:
         """
@@ -166,17 +169,17 @@ class SinglyLinkedList[T]:
         """
         return self.length
 
-    def foreach(self, cb: Callable[[T], Any]) -> None:
+    def foreach(self, fn: Callable[[T], Any]) -> Any:
         """
         Apply a function to each element of the List
         Does not change the cursor position
-        :param cb: The function to be applied
+        :param fn: The function to be applied
         :return: None
         """
         old_current = self.curr
         self.curr = self.head
         while self.curr is not None:
-            cb(self.curr.value)
+            fn(self.curr.value)
             self.next()
         self.curr = old_current
 
@@ -211,8 +214,8 @@ class SinglyLinkedList[T]:
         if self.is_empty():
             return None
 
-        if index > self.len() - 1:
-            raise IndexError("Index out of bounds")
+        if index > self.len() - 1 or index < 0:
+            raise IndexError(f"Index '{index}' out of bounds for Doubly Linked List of size '{self.length}'")
 
         old_current = self.curr
         self.curr = self.head
@@ -236,7 +239,7 @@ class SinglyLinkedList[T]:
         :return: None
         """
         if self.is_empty():
-            raise RuntimeError("List is empty")
+            raise ContainerEmptyError("Singly Linked List")
 
         if not isinstance(index, int):
             raise TypeError("<index> must be an integer")
@@ -245,7 +248,7 @@ class SinglyLinkedList[T]:
             if not isinstance(new_value, self._type):
                 raise TypeError(f"<new_value> must be of type {str(self._type)}")
 
-        if index > self.len() - 1:
+        if index > self.len() - 1 or index < 0:
             raise IndexError("Index out of bounds")
 
         old_current = self.curr
