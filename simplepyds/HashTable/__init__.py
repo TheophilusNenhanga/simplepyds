@@ -1,1 +1,1 @@
-from simplepyds.HashTable.HashTable import HashingTable
+from simplepyds.HashTable.HashTable import HashTable

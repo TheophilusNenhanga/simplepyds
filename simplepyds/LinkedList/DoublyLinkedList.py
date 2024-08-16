@@ -1,6 +1,6 @@
 from simplepyds.Errors.CustomErrors import ContainerEmptyError
 from simplepyds.LinkedList.Node import DoublyLinkedNode
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 
 
 class DoublyLinkedList[T]:
@@ -14,6 +14,7 @@ class DoublyLinkedList[T]:
         self.curr: DoublyLinkedNode[T] | None = None
         self._type: type | None = None
         self.length: int = 0
+        self.__last_insert: Literal["front", "back"] = "front"
 
     def _check_type(self, value: Any) -> None:
         """
@@ -43,6 +44,7 @@ class DoublyLinkedList[T]:
             self.head = DoublyLinkedNode(value, _next=old_head)
             old_head.prev = self.head
 
+        self.__last_insert = "front"
         self.length += 1
 
     def insert_back(self, value: T) -> None:
@@ -60,6 +62,7 @@ class DoublyLinkedList[T]:
             self.tail = DoublyLinkedNode(value)
             old_tail.next = self.tail
 
+        self.__last_insert = "back"
         self.length += 1
 
     def delete_front(self) -> None:
@@ -69,6 +72,13 @@ class DoublyLinkedList[T]:
         """
         if self.is_empty():
             raise ContainerEmptyError("Doubly Linked List")
+
+        if self.length == 1:
+            self.head = None
+            self.tail = None
+            self.curr = None
+            self.length = 0
+            return
 
         old_head = self.head
         self.head = old_head.next
@@ -83,6 +93,13 @@ class DoublyLinkedList[T]:
         """
         if self.is_empty():
             raise ContainerEmptyError("Doubly Linked List")
+
+        if self.length == 1:
+            self.head = None
+            self.tail = None
+            self.curr = None
+            self.length = 0
+            return
 
         old_tail = self.tail
         self.tail = old_tail.prev
@@ -149,13 +166,66 @@ class DoublyLinkedList[T]:
         if self.is_empty():
             return
         old_current = self.curr
+
+        if self.__last_insert == "front":
+            self.curr = self.head
+            while self.curr is not None:
+                if self.curr.value == query:
+                    return
+                else:
+                    self.next()
+            self.curr = old_current
+        else:
+            self.curr = self.tail
+            while self.curr is not None:
+                if self.curr.value == query:
+                    return
+                else:
+                    self.previous()
+            self.curr = old_current
+
+    def delete(self, value: T, all_occurrences: bool = True) -> None:
+        """
+        Deletes the value from the list.
+        Moves the cursor to before the list
+        :param value: The value to be deleted
+        :param all_occurrences: True if all the occurrences of the value should be deleted otherwise False
+        :return: None
+        """
+        if self.is_empty():
+            raise ContainerEmptyError("Doubly Linked List")
+
         self.curr = self.head
+
         while self.curr is not None:
-            if self.curr.value == query:
-                return
-            else:
-                self.next()
-        self.curr = old_current
+            if self.curr.value == value:
+                if self.curr == self.head and not self.is_empty():
+                    self.delete_front()
+                    if not all_occurrences:
+                        self.curr = None
+                        return
+                if self.curr == self.tail and not self.is_empty():
+                    self.delete_back()
+                    self.curr = None
+                    return
+
+                if self.is_empty():
+                    return
+
+                previous = self.curr.prev
+                next_ = self.curr.next
+
+                previous.next = next_
+                next_.prev = previous
+                self.curr = None
+                self.curr = self.head
+                self.length -= 1
+                if not all_occurrences:
+                    return
+
+            self.next()
+        if not all_occurrences:
+            self.curr = None
 
     def current(self):
         """
@@ -243,20 +313,47 @@ class DoublyLinkedList[T]:
         self.curr = old_curr
         return string
 
-    def foreach(self, fn: Callable[[T], Any]) -> Any:
+    def foreach(self, fn: Callable[[T], Any] | Callable[[DoublyLinkedNode[T]], Any], node: bool = False) -> Any:
         """
         Executes a function fn on each element of the list
+        :param node: True if the foreach should be applied to the node False otherwise
         :param fn: The function to execute
-        :return: Any value produced by the function
+        :return: Any value produced by the function in a list
         """
         if self.is_empty():
             raise IndexError("Cannot get first element of empty list")
 
+        result: list[Any] = []
         old_current = self.curr
         self.curr = self.head
-
-        while self.curr is not None:
-            fn(self.curr.value)
-            self.next()
+        if node:
+            while self.curr is not None:
+                result.append(fn(self.curr))
+                self.next()
+        else:
+            while self.curr is not None:
+                result.append(fn(self.curr.value))
+                self.next()
 
         self.curr = old_current
+        for _ in result:
+            if _ is not None:
+                return result
+        return None
+
+    def contains(self, value: T) -> bool:
+        """
+        Check if a value is in the List
+        :param value: the value to be checked
+        :return: True if the value is in the List else False
+        """
+        if self.is_empty():
+            return False
+
+        self._check_type(value)
+
+        old_current = self.curr
+        self.search(value)
+        _ = True if self.curr is not None and self.curr.value == value else False
+        self.curr = old_current
+        return _

@@ -24,9 +24,10 @@ class SinglyLinkedList[T]:
         self.curr = self.head
         result = "["
         while self.curr is not None:
-            result += f" {self.curr.value},"
+            result += f"{self.curr.value}, "
             self.next()
-        result += " None ]"
+        result = result.rstrip(", ")
+        result += "]"
         self.curr = old_current
         return result
 
@@ -141,6 +142,37 @@ class SinglyLinkedList[T]:
                     self.curr.next = None
                     self.length -= 1
                     self.curr = self.head
+
+    def delete(self, value: T, all_occurrences: bool = False):
+        if self.is_empty():
+            raise ContainerEmptyError("Doubly Linked List")
+
+        self.curr = self.head
+
+        while self.curr is not None:
+            if self.curr.value == value:
+                if self.curr == self.head:
+                    self.delete_front()
+                    if not all_occurrences:
+                        self.curr = None
+                        return
+
+                if self.is_empty():
+                    return
+
+            if self.curr.next is not None and self.curr.next.value == value:
+                if self.curr.next.next is not None:
+                    self.curr.next = self.curr.next.next
+                else:
+                    self.curr.next = None
+
+                self.length -= 1
+                if not all_occurrences:
+                    self.curr = None
+                    return
+            self.next()
+        if not all_occurrences:
+            self.curr = None
 
     def is_empty(self) -> bool:
         """
@@ -271,3 +303,20 @@ class SinglyLinkedList[T]:
             return self.curr.value
         else:
             return None
+
+    def contains(self, value: T) -> bool:
+        """
+        Check if a value is in the List
+        :param value: the value to be checked
+        :return: True if the value is in the List else False
+        """
+        if self.is_empty():
+            raise ContainerEmptyError("Doubly Linked List")
+
+        self._check_type(value)
+
+        old_current = self.curr
+        self.search(value)
+        _ = True if self.curr is not None and self.curr.value == value else False
+        self.curr = old_current
+        return _
