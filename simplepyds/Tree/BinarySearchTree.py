@@ -1,31 +1,19 @@
 from typing import Callable, Literal, Any
+from simplepyds.Base.Container import Container
 from simplepyds.Tree.TreeNode import BinarySearchTreeNode
 
 
-class BinarySearchTree[T]:
-
+class BinarySearchTree[T](Container):
     def __init__(self, comparator: Callable[[T, T], bool] | None = None):
         """
         :param comparator: Callable[[T, T], bool] | None: A function that takes two T and returns True if the first T
         is greater than the second.
         """
+        super().__init__()
         self._head: BinarySearchTreeNode[T] | None = None
         self._size: int = 0
         self._comparator = comparator
         self._type = None
-
-    def check_type(self, value: Any) -> None:
-        """
-        Checks if the given value is an instance of T
-        :raises TypeError: If the given value is not an instance of T
-        :param value: The value to check
-        :return: None
-        """
-        if self._type is not None:
-            if not isinstance(value, self._type):
-                raise TypeError(f"'{value}' is not of type {self._type}")
-        else:
-            self._type = type(value)
 
     def insert(self, value: T) -> None:
         """
@@ -33,7 +21,7 @@ class BinarySearchTree[T]:
         :param value: The value to insert
         :return: None
         """
-        self.check_type(value)
+        self._check_type(value)
 
         if self.is_empty():
             self._head = BinarySearchTreeNode(value)
@@ -209,7 +197,7 @@ class BinarySearchTree[T]:
         :return: True if the value was found, False otherwise
         """
         if not self.is_empty():
-            self.check_type(value)
+            self._check_type(value)
             return self._search(self._head, value)
         else:
             raise IndexError(f"Cannot search for value <{value}> in empty Binary Search Tree")
@@ -264,7 +252,7 @@ class BinarySearchTree[T]:
         :param value: the value to remove
         :return: None
         """
-        self.check_type(value)
+        self._check_type(value)
         if not self.is_empty():
             if self.search(value):
                 self._head = self._delete(value, self._head)

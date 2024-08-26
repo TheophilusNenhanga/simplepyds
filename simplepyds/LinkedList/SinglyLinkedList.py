@@ -1,14 +1,16 @@
+from simplepyds.Base.Container import Container
 from simplepyds.Errors import ContainerEmptyError
 from simplepyds.LinkedList.Node import SinglyLinkedNode
 from typing import Any, Callable
 
 
-class SinglyLinkedList[T]:
+class SinglyLinkedList[T](Container):
     def __init__(self) -> None:
         """
         Initialize a Singly Linked List that only accepts one element type
         Places the cursor before the beginning of the list head
         """
+        super().__init__()
         self.head: SinglyLinkedNode[T] | None = None
         self.length = 0
         self.curr: SinglyLinkedNode[T] | None = None
@@ -51,19 +53,6 @@ class SinglyLinkedList[T]:
             return self.curr.value
         else:
             raise StopIteration("List out of bounds: No more values to return")
-
-    def _check_type(self, value: Any) -> None:
-        """
-        Checks if a given value is the correct type
-        :param value: A value to be checked
-        :return: None
-        :raises TypeError: If the value is not of the correct type
-        """
-        if self._type is None:
-            self._type = type(value)
-        else:
-            if not isinstance(value, self._type):
-                raise TypeError(f"Value {value} is not of type {self._type}")
 
     def insert_front(self, value: T) -> None:
         """
@@ -320,3 +309,9 @@ class SinglyLinkedList[T]:
         _ = True if self.curr is not None and self.curr.value == value else False
         self.curr = old_current
         return _
+
+    def clear(self):
+        self.head = None
+        self.curr = None
+        self.length = 0
+        self._type = None

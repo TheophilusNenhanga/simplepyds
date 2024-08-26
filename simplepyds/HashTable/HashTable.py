@@ -1,11 +1,12 @@
-from typing import Any, Callable
+from typing import Callable
 
 from simplepyds.Errors.CustomErrors import ContainerEmptyError
 from simplepyds.LinkedList.DoublyLinkedList import DoublyLinkedList
 from simplepyds.LinkedList.Node import DoublyLinkedNode
+from simplepyds.Base.Container import Container
 
 
-class HashTable[T]:
+class HashTable[T](Container):
     def __init__(
             self,
             length: int,
@@ -20,6 +21,7 @@ class HashTable[T]:
         :param grow_factor: The growing factor of the hash table.
         :param hash_function: The optional hash function to use.
         """
+        super().__init__()
         self.container = [DoublyLinkedList() for _ in range(length)]
         self._length: int = len(self.container)
         self._inserted_count: int = 0
@@ -69,19 +71,6 @@ class HashTable[T]:
         self._length = len(self.container)
         for _ in values:
             self.insert(_)
-
-    def _check_type(self, value: Any):
-        """
-        Checks if a given value is the correct type
-        :param value: A value to be checked
-        :return: None
-        :raises TypeError: If the value is not of the correct type
-        """
-        if self._type is None:
-            self._type = type(value)
-        else:
-            if not isinstance(value, self._type):
-                raise TypeError(f"Value {value} is not of type {self._type}")
 
     def insert(self, value: T) -> None:
         """

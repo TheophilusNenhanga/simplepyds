@@ -1,33 +1,22 @@
+from simplepyds.Base import Container
 from simplepyds.Errors.CustomErrors import ContainerEmptyError
 from simplepyds.LinkedList.Node import DoublyLinkedNode
 from typing import Any, Callable, Literal
 
 
-class DoublyLinkedList[T]:
+class DoublyLinkedList[T](Container):
 
     def __init__(self):
         """
         Initialize a DoublyLinkedList.
         """
+        super().__init__()
         self.head: DoublyLinkedNode[T] | None = None
         self.tail: DoublyLinkedNode[T] | None = None
         self.curr: DoublyLinkedNode[T] | None = None
         self._type: type | None = None
         self.length: int = 0
         self.__last_insert: Literal["front", "back"] = "front"
-
-    def _check_type(self, value: Any) -> None:
-        """
-        Checks if a given value is the correct type
-        :param value: A value to be checked
-        :return: None
-        :raises TypeError: If the value is not of the correct type
-        """
-        if self._type is None:
-            self._type = type(value)
-        else:
-            if not isinstance(value, self._type):
-                raise TypeError(f"Value {value} is not of type {self._type}")
 
     def insert_front(self, value: T) -> None:
         """
@@ -357,3 +346,10 @@ class DoublyLinkedList[T]:
         _ = True if self.curr is not None and self.curr.value == value else False
         self.curr = old_current
         return _
+
+    def clear(self):
+        self.head = None
+        self.curr = None
+        self.tail = None
+        self.length = 0
+        self._type = None
